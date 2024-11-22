@@ -25,7 +25,7 @@ jobs:
     - name: Install MinGW
       run: |
         choco install mingw -y
-        if (${{ matrix.architecture }} == 'x64') {
+        if ('${{ matrix.architecture }}' -eq 'x64') {
           $env:PATH="C:\tools\mingw64\bin;$env:PATH"
         } else {
           $env:PATH="C:\tools\mingw32\bin;$env:PATH"
