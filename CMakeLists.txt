@@ -3,7 +3,12 @@ project(YourProjectName)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(include) # 包含 nlohmann/json.hpp 文件的目录
-link_libraries(curl iphlpapi) # 链接 curl 和 iphlpapi 库
+# 添加 curl 头文件和库文件的路径
+include_directories(C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/include)
+link_directories(C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib)
 
-add_executable(your_executable_name main.cpp) # 替换 main.cpp 为你的主源文件路径
+# 链接 curl 库
+link_libraries(curl)
+
+# 添加可执行文件
+add_executable(your_executable_name main.cpp)
