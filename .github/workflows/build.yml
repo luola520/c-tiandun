@@ -16,11 +16,6 @@ jobs:
     strategy:
       matrix:
         architecture: [x86, x64] # 指定 32 位和 64 位架构
-        include:
-          - architecture: x86
-            platform: Win32
-          - architecture: x64
-            platform: x64
 
     steps:
     - name: Checkout code
@@ -31,14 +26,11 @@ jobs:
         choco install -y visualstudio2022buildtools
         choco install -y visualstudio2022-workload-vctools
 
-    - name: Set up MSVC environment
+    - name: Configure and Build
       shell: cmd
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" {{ matrix.platform }}
-
-    - name: Build project
-      run: |
+        echo Configuring and building for architecture: {{ matrix.architecture }}
         mkdir build
         cd build
-        cmake -A {{ matrix.architecture }} ..
+        cmake -G "Visual Studio 17 2022" -A {{ matrix.architecture }} ..
         cmake --build . --config Release
