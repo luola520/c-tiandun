@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Compile
 
 on:
   push:
@@ -17,20 +17,19 @@ jobs:
         architecture: [x86, x64]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # Step 1: Checkout the code
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Set up MSBuild
-      uses: microsoft/setup-msbuild@v1
+      # Step 2: Compile the program using cl.exe
+      - name: Compile Program
+        run: |
+          "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.architecture }}
+          cl /EHsc /O2 /MT src\main.cpp /Iinclude /link /OUT:main-${{ matrix.architecture }}.exe
 
-    - name: Install dependencies
-      run: choco install curl -y
-
-    - name: Build project
-      shell: cmd
-      run: |
-        msbuild src\main.cpp /p:Configuration=Release /p:Platform=%matrix.architecture%
-
-    - name: Run executable (optional)
-      run: |
-        build\main_%matrix.architecture%.exe
+      # Step 3: Upload build artifacts
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: MySoftware-${{ matrix.architecture }}
+          path: main-${{ matrix.architecture }}.exe
