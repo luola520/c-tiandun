@@ -3,7 +3,7 @@ name: Build C++ Program
 on:
   push:
     branches:
-      - main  # 监听推送到 main 分支
+      - main
   pull_request:
 
 jobs:
@@ -20,10 +20,10 @@ jobs:
       - name: Install MinGW
         run: choco install mingw -y
 
-      # 3. 配置 PATH 环境变量（确保 g++ 可用）
+      # 3. 配置 PATH 环境变量
       - name: Configure PATH for MinGW
         run: |
-          echo "::add-path::C:\tools\mingw64\bin"
+          echo "C:\tools\mingw64\bin" >> $env:GITHUB_PATH
 
       # 4. 编译 32 位可执行文件
       - name: Compile 32-bit Executable
