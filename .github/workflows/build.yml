@@ -26,7 +26,9 @@ jobs:
         run: |
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
           choco install mingw -y
+          choco install curl -y
           $Env:Path += ";C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+          $Env:Path += ";C:\ProgramData\chocolatey\lib\curl\tools\curl-7.87.0-win64-mingw\include"
 
       # 配置和编译
       - name: Configure and Build
@@ -35,9 +37,9 @@ jobs:
           mkdir build
           cd build
           if "%{{ matrix.arch }}"=="x86" (
-            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m32" ..
+            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_EXE_LINKER_FLAGS="-L'C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib'" ..
           ) else (
-            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m64" ..
+            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m64" -DCMAKE_EXE_LINKER_FLAGS="-L'C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib'" ..
           )
           mingw32-make
 
