@@ -1,4 +1,4 @@
-name: Windows Build
+name: Build C++ Project
 
 on:
   push:
@@ -10,29 +10,38 @@ on:
 
 jobs:
   build:
-    name: Build for Windows
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        architecture:
-          - Win32
-          - x64 # 直接指定平台名称
+        arch: [x86, x64] # 编译 32 位和 64 位
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        choco install -y visualstudio2022buildtools
-        choco install -y visualstudio2022-workload-vctools
+      # 安装必要的构建工具
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y g++-multilib make cmake curl
 
-    - name: Configure and Build
-      shell: cmd
-      run: |
-        echo Configuring and building for architecture: ${{ matrix.architecture }}
-        mkdir build
-        cd build
-        cmake -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} ..
-        cmake --build . --config Release
+      # 配置和编译
+      - name: Configure and Build
+        run: |
+          mkdir build
+          cd build
+          if [ "${{ matrix.arch }}" == "x86" ]; then
+            cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS="-m32" ..
+          else
+            cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS="-m64" ..
+          fi
+          make
+
+      # 上传编译的可执行文件作为 Artifacts
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.arch }}
+          path: build/your_executable_name # 替换为生成的可执行文件路径
