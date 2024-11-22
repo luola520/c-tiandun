@@ -14,37 +14,37 @@ jobs:
 
     strategy:
       matrix:
-        architecture: [x86, x64] # 分别表示 32 位和 64 位架构
+        architecture: [x86, x64] # Compile for 32-bit and 64-bit
 
     steps:
-    # 检出代码
+    # Checkout the repository
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 安装依赖
-    - name: Install dependencies
+    # Install MinGW via Chocolatey
+    - name: Install MinGW
       run: |
-        choco install mingw -y # 安装 mingw
-        RefreshEnv
+        choco install mingw -y
+        if (${{ matrix.architecture }} == 'x64') {
+          $env:PATH="C:\tools\mingw64\bin;$env:PATH"
+        } else {
+          $env:PATH="C:\tools\mingw32\bin;$env:PATH"
+        }
+        [Environment]::SetEnvironmentVariable("PATH", $env:PATH, [EnvironmentVariableTarget]::Process)
 
-    # 设置编译器路径
-    - name: Set up GCC
+    # Verify GCC installation
+    - name: Verify GCC installation
       run: |
-        if [ "${{ matrix.architecture }}" == "x64" ]; then
-          set PATH=C:\tools\mingw64\bin;%PATH%
-        else
-          set PATH=C:\tools\mingw32\bin;%PATH%
-        fi
         g++ --version
 
-    # 编译程序
+    # Build the project
     - name: Build application
       run: |
         mkdir -p build
         cd build
         g++ -std=c++17 ../main.cpp -o app-${{ matrix.architecture }}.exe -I../include -lcurl -liphlpapi
 
-    # 保存生成的文件
+    # Upload the artifacts (compiled binaries)
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
