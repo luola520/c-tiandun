@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.15)
-project(WindowsBuildExample)
+project(MyProject LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# 添加 JSON 库路径
+# 添加头文件路径
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# 源代码
+# 源文件
 add_executable(main main.cpp)
 
-# 链接库
-target_link_libraries(main ws2_32 iphlpapi)
+# 链接依赖的库（例如 IPHelper 和 Ws2_32）
+target_link_libraries(main iphlpapi ws2_32)
