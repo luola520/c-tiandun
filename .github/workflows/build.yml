@@ -15,7 +15,9 @@ jobs:
 
     strategy:
       matrix:
-        architecture: [x86, x64] # 指定 32 位和 64 位架构
+        architecture:
+          - Win32
+          - x64 # 直接指定平台名称
 
     steps:
     - name: Checkout code
@@ -29,8 +31,8 @@ jobs:
     - name: Configure and Build
       shell: cmd
       run: |
-        echo Configuring and building for architecture: {{ matrix.architecture }}
+        echo Configuring and building for architecture: ${{ matrix.architecture }}
         mkdir build
         cd build
-        cmake -G "Visual Studio 17 2022" -A {{ matrix.architecture }} ..
+        cmake -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} ..
         cmake --build . --config Release
