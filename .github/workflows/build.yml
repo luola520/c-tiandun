@@ -36,9 +36,9 @@ jobs:
           mkdir build
           cd build
           if "%{{ matrix.arch }}"=="x86" (
-            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_INCLUDE_PATH="C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/include" -DCMAKE_LIBRARY_PATH="C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib" ..
+            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m32" ..
           ) else (
-            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m64" -DCMAKE_INCLUDE_PATH="C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/include" -DCMAKE_LIBRARY_PATH="C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib" ..
+            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m64" ..
           )
           mingw32-make
 
