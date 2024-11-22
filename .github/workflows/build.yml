@@ -30,14 +30,15 @@ jobs:
 
       # 配置和编译
       - name: Configure and Build
+        shell: cmd
         run: |
           mkdir build
           cd build
-          if [ "${{ matrix.arch }}" == "x86" ]; then
+          if "%{{ matrix.arch }}"=="x86" (
             cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m32" ..
-          else
+          ) else (
             cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m64" ..
-          fi
+          )
           mingw32-make
 
       # 上传编译的可执行文件作为 Artifacts
@@ -45,4 +46,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-${{ matrix.arch }}
-          path: build/your_executable_name.exe # 替换为生成的可执行文件路径
+          path: build\your_executable_name.exe # 替换为生成的可执行文件路径
