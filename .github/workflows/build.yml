@@ -1,4 +1,4 @@
-name: Build and Compile
+name: CMake Build
 
 on:
   push:
@@ -9,28 +9,36 @@ on:
       - main
 
 jobs:
-  build:
+  build_32_and_64:
     runs-on: windows-latest
 
     strategy:
       matrix:
-        architecture: [x86, x64]
+        arch: [x86, x64]
 
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Compile the program using cl.exe
-      - name: Setup Visual Studio and Compile
-        run: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.architecture }}
-          cl /EHsc /O2 /MT src\main.cpp /Iinclude /link /OUT:main-${{ matrix.architecture }}.exe
-        shell: cmd
-
-      # Step 3: Upload build artifacts
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v1
         with:
-          name: MySoftware-${{ matrix.architecture }}
-          path: main-${{ matrix.architecture }}.exe
+          cmake-version: '3.22.0'
+
+      - name: Install Dependencies
+        run: |
+          choco install curl
+          choco install mingw
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build-%arch% -A %arch%
+
+      - name: Build with CMake
+        run: |
+          cmake --build build-%arch%
+
+      - name: Run Tests
+        run: |
+          cd build-%arch%
+          ./CardVerificationApp
