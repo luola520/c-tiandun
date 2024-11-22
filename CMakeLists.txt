@@ -1,13 +1,9 @@
-cmake_minimum_required(VERSION 3.15)
-project(MyProject LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.10)
+project(YourProjectName)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# 添加头文件路径
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(include) # 包含 nlohmann/json.hpp 文件的目录
+link_libraries(curl iphlpapi) # 链接 curl 和 iphlpapi 库
 
-# 源文件
-add_executable(main main.cpp)
-
-# 链接依赖的库（例如 IPHelper 和 Ws2_32）
-target_link_libraries(main iphlpapi ws2_32)
+add_executable(your_executable_name main.cpp) # 替换 main.cpp 为你的主源文件路径
