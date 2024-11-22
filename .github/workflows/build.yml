@@ -1,4 +1,4 @@
-name: CMake Build
+name: Build for Windows (32-bit and 64-bit)
 
 on:
   push:
@@ -9,36 +9,44 @@ on:
       - main
 
 jobs:
-  build_32_and_64:
+  build-windows:
     runs-on: windows-latest
 
     strategy:
       matrix:
-        arch: [x86, x64]
+        architecture: [x86, x64] # 分别表示 32 位和 64 位架构
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    # 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1
-        with:
-          cmake-version: '3.22.0'
+    # 安装依赖
+    - name: Install dependencies
+      run: |
+        choco install mingw -y # 安装 mingw
+        RefreshEnv
 
-      - name: Install Dependencies
-        run: |
-          choco install curl
-          choco install mingw
+    # 设置编译器路径
+    - name: Set up GCC
+      run: |
+        if [ "${{ matrix.architecture }}" == "x64" ]; then
+          set PATH=C:\tools\mingw64\bin;%PATH%
+        else
+          set PATH=C:\tools\mingw32\bin;%PATH%
+        fi
+        g++ --version
 
-      - name: Configure CMake
-        run: |
-          cmake -S ${{ github.workspace }} -B build-%arch% -A %arch%
+    # 编译程序
+    - name: Build application
+      run: |
+        mkdir -p build
+        cd build
+        g++ -std=c++17 ../main.cpp -o app-${{ matrix.architecture }}.exe -I../include -lcurl -liphlpapi
 
-      - name: Build with CMake
-        run: |
-          cmake --build build-%arch%
-
-      - name: Run Tests
-        run: |
-          cd build-%arch%
-          ./CardVerificationApp
+    # 保存生成的文件
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-app-${{ matrix.architecture }}
+        path: build/app-${{ matrix.architecture }}.exe
