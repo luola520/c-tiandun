@@ -1,4 +1,4 @@
-name: Build for Windows (32-bit and 64-bit)
+name: Windows Build
 
 on:
   push:
@@ -9,44 +9,36 @@ on:
       - main
 
 jobs:
-  build-windows:
+  build:
+    name: Build for Windows
     runs-on: windows-latest
 
     strategy:
       matrix:
-        architecture: [x86, x64] # Compile for 32-bit and 64-bit
+        architecture: [x86, x64] # 指定 32 位和 64 位架构
+        include:
+          - architecture: x86
+            platform: Win32
+          - architecture: x64
+            platform: x64
 
     steps:
-    # Checkout the repository
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Install MinGW via Chocolatey
-    - name: Install MinGW
+    - name: Install dependencies
       run: |
-        choco install mingw -y
-        if ('${{ matrix.architecture }}' -eq 'x64') {
-          $env:PATH="C:\tools\mingw64\bin;$env:PATH"
-        } else {
-          $env:PATH="C:\tools\mingw32\bin;$env:PATH"
-        }
-        [Environment]::SetEnvironmentVariable("PATH", $env:PATH, [EnvironmentVariableTarget]::Process)
+        choco install -y visualstudio2022buildtools
+        choco install -y visualstudio2022-workload-vctools
 
-    # Verify GCC installation
-    - name: Verify GCC installation
+    - name: Set up MSVC environment
+      shell: cmd
       run: |
-        g++ --version
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" {{ matrix.platform }}
 
-    # Build the project
-    - name: Build application
+    - name: Build project
       run: |
-        mkdir -p build
+        mkdir build
         cd build
-        g++ -std=c++17 ../main.cpp -o app-${{ matrix.architecture }}.exe -I../include -lcurl -liphlpapi
-
-    # Upload the artifacts (compiled binaries)
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: windows-app-${{ matrix.architecture }}
-        path: build/app-${{ matrix.architecture }}.exe
+        cmake -A {{ matrix.architecture }} ..
+        cmake --build . --config Release
