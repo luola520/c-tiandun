@@ -16,31 +16,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. 安装 MinGW（Windows GCC 工具链）
-      - name: Install MinGW
-        run: choco install mingw -y
-
-      # 3. 安装 libcurl（带开发文件）
-      - name: Install libcurl
-        run: choco install curl -y
-
-      # 4. 配置 PATH 和 Include 路径
-      - name: Configure PATH and Curl Includes
+      # 2. 安装 MinGW 和 MinGW 的 libcurl 开发包
+      - name: Install MinGW and libcurl
         run: |
-          echo "C:\tools\mingw64\bin" >> $env:GITHUB_PATH
-          echo "C:\tools\curl\include" >> $env:GITHUB_PATH
+          choco install mingw -y
+          pacman -S mingw-w64-x86_64-curl mingw-w64-x86_64-curl-dev --noconfirm
 
-      # 5. 编译 32 位可执行文件
+      # 3. 配置 PATH
+      - name: Configure PATH
+        run: echo "C:\tools\mingw64\bin" >> $env:GITHUB_PATH
+
+      # 4. 编译 32 位可执行文件
       - name: Compile 32-bit Executable
         run: |
-          g++ -I"C:\tools\curl\include" -L"C:\tools\curl\lib" -m32 -o program32.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
+          g++ -I"C:\tools\mingw64\include" -L"C:\tools\mingw64\lib" -m32 -o program32.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
 
-      # 6. 编译 64 位可执行文件
+      # 5. 编译 64 位可执行文件
       - name: Compile 64-bit Executable
         run: |
-          g++ -I"C:\tools\curl\include" -L"C:\tools\curl\lib" -m64 -o program64.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
+          g++ -I"C:\tools\mingw64\include" -L"C:\tools\mingw64\lib" -m64 -o program64.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
 
-      # 7. 上传编译结果
+      # 6. 上传编译结果
       - name: Upload Executables
         uses: actions/upload-artifact@v3
         with:
