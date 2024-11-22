@@ -3,7 +3,7 @@ name: Build C++ Program
 on:
   push:
     branches:
-      - main  # 当推送到主分支时触发
+      - main  # 监听推送到 main 分支
   pull_request:
 
 jobs:
@@ -20,21 +20,22 @@ jobs:
       - name: Install MinGW
         run: choco install mingw -y
 
-      # 3. 编译 32 位可执行文件
+      # 3. 配置 PATH 环境变量（确保 g++ 可用）
+      - name: Configure PATH for MinGW
+        run: |
+          echo "::add-path::C:\tools\mingw64\bin"
+
+      # 4. 编译 32 位可执行文件
       - name: Compile 32-bit Executable
         run: |
           g++ -m32 -o program32.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
-        env:
-          PATH: C:\tools\mingw32\bin;${{ env.PATH }}
 
-      # 4. 编译 64 位可执行文件
+      # 5. 编译 64 位可执行文件
       - name: Compile 64-bit Executable
         run: |
           g++ -m64 -o program64.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
-        env:
-          PATH: C:\tools\mingw64\bin;${{ env.PATH }}
 
-      # 5. 上传编译结果
+      # 6. 上传编译结果
       - name: Upload Executables
         uses: actions/upload-artifact@v3
         with:
