@@ -1,46 +1,47 @@
-name: Build C++ Program
+name: Build and Test
 
 on:
   push:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 jobs:
-  build-windows:
-    name: Build on Windows
+  build:
     runs-on: windows-latest
 
+    strategy:
+      matrix:
+        architecture: [x86, x64] # 定义32位和64位架构
+
     steps:
-      # 1. 检出代码
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # Step 1: Checkout code
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      # 2. 安装 MinGW 和 MinGW 的 libcurl 开发包
-      - name: Install MinGW and libcurl
-        run: |
-          choco install mingw -y
-          pacman -S mingw-w64-x86_64-curl mingw-w64-x86_64-curl-dev --noconfirm
+    # Step 2: Set up MSVC environment
+    - name: Set up MSVC for Windows
+      shell: cmd
+      run: |
+        if "%matrix.architecture%" == "x64" (
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+        ) else (
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
+        )
 
-      # 3. 配置 PATH
-      - name: Configure PATH
-        run: echo "C:\tools\mingw64\bin" >> $env:GITHUB_PATH
+    # Step 3: Install dependencies
+    - name: Install libcurl
+      run: |
+        choco install curl -y
 
-      # 4. 编译 32 位可执行文件
-      - name: Compile 32-bit Executable
-        run: |
-          g++ -I"C:\tools\mingw64\include" -L"C:\tools\mingw64\lib" -m32 -o program32.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
+    # Step 4: Build the project for each architecture
+    - name: Build
+      run: |
+        cl /EHsc /std:c++17 src\main.cpp /Iinclude /Fe:build\main_%matrix.architecture%.exe /link iphlpapi.lib ws2_32.lib wldap32.lib advapi32.lib
 
-      # 5. 编译 64 位可执行文件
-      - name: Compile 64-bit Executable
-        run: |
-          g++ -I"C:\tools\mingw64\include" -L"C:\tools\mingw64\lib" -m64 -o program64.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
-
-      # 6. 上传编译结果
-      - name: Upload Executables
-        uses: actions/upload-artifact@v3
-        with:
-          name: Windows-Executables
-          path: |
-            program32.exe
-            program64.exe
+    # Step 5: Run the application (optional, only for validation)
+    - name: Run application (optional)
+      run: |
+        build\main_%matrix.architecture%.exe
