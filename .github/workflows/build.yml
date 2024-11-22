@@ -30,22 +30,15 @@ jobs:
           choco install curl
           choco install mingw
 
-      - name: Create Build Directory
-        run: |
-          mkdir build-%arch%
-
       - name: Configure CMake
         run: |
-          cmake -S . -B build-%arch% -A %arch%
-        working-directory: ${{ github.workspace }}
+          cmake -S ${{ github.workspace }} -B build-%arch% -A %arch%
 
       - name: Build with CMake
         run: |
           cmake --build build-%arch%
-        working-directory: ${{ github.workspace }}
 
       - name: Run Tests
         run: |
           cd build-%arch%
           ./CardVerificationApp
-        working-directory: ${{ github.workspace }}
