@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        arch: [x86, x64] # 编译 32 位和 64 位
+        arch: [x86, x64]
 
     steps:
       # 检出代码
@@ -28,7 +28,6 @@ jobs:
           choco install mingw -y
           choco install curl -y
           $Env:Path += ";C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
-          $Env:Path += ";C:\ProgramData\chocolatey\lib\curl\tools\curl-7.87.0-win64-mingw\include"
 
       # 配置和编译
       - name: Configure and Build
@@ -37,9 +36,9 @@ jobs:
           mkdir build
           cd build
           if "%{{ matrix.arch }}"=="x86" (
-            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_EXE_LINKER_FLAGS="-L'C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib'" ..
+            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_INCLUDE_PATH="C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/include" -DCMAKE_LIBRARY_PATH="C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib" ..
           ) else (
-            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m64" -DCMAKE_EXE_LINKER_FLAGS="-L'C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib'" ..
+            cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_CXX_FLAGS="-m64" -DCMAKE_INCLUDE_PATH="C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/include" -DCMAKE_LIBRARY_PATH="C:/ProgramData/chocolatey/lib/curl/tools/curl-7.87.0-win64-mingw/lib" ..
           )
           mingw32-make
 
@@ -48,4 +47,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-${{ matrix.arch }}
-          path: build\your_executable_name.exe # 替换为生成的可执行文件路径
+          path: build\your_executable_name.exe
