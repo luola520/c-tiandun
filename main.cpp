@@ -9,6 +9,7 @@
 
 #pragma comment(lib, "iphlpapi.lib") // 链接 IPHelper 库
 
+
 // 硬编码的参数
 const std::string SOFTWARE_NAME = "test";
 const std::string SOFTWARE_VERSION = "1";
