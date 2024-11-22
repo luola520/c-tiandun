@@ -14,34 +14,23 @@ jobs:
 
     strategy:
       matrix:
-        architecture: [x86, x64] # 定义32位和64位架构
+        architecture: [x86, x64]
 
     steps:
-    # Step 1: Checkout code
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Step 2: Set up MSVC environment
-    - name: Set up MSVC for Windows
+    - name: Set up MSBuild
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Install dependencies
+      run: choco install curl -y
+
+    - name: Build project
       shell: cmd
       run: |
-        if "%matrix.architecture%" == "x64" (
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
-        ) else (
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
-        )
+        msbuild src\main.cpp /p:Configuration=Release /p:Platform=%matrix.architecture%
 
-    # Step 3: Install dependencies
-    - name: Install libcurl
-      run: |
-        choco install curl -y
-
-    # Step 4: Build the project for each architecture
-    - name: Build
-      run: |
-        cl /EHsc /std:c++17 src\main.cpp /Iinclude /Fe:build\main_%matrix.architecture%.exe /link iphlpapi.lib ws2_32.lib wldap32.lib advapi32.lib
-
-    # Step 5: Run the application (optional, only for validation)
-    - name: Run application (optional)
+    - name: Run executable (optional)
       run: |
         build\main_%matrix.architecture%.exe
