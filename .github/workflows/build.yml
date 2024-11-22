@@ -20,22 +20,27 @@ jobs:
       - name: Install MinGW
         run: choco install mingw -y
 
-      # 3. 配置 PATH 环境变量
-      - name: Configure PATH for MinGW
+      # 3. 安装 libcurl（带开发文件）
+      - name: Install libcurl
+        run: choco install curl -y
+
+      # 4. 配置 PATH 和 Include 路径
+      - name: Configure PATH and Curl Includes
         run: |
           echo "C:\tools\mingw64\bin" >> $env:GITHUB_PATH
+          echo "C:\tools\curl\include" >> $env:GITHUB_PATH
 
-      # 4. 编译 32 位可执行文件
+      # 5. 编译 32 位可执行文件
       - name: Compile 32-bit Executable
         run: |
-          g++ -m32 -o program32.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
+          g++ -I"C:\tools\curl\include" -L"C:\tools\curl\lib" -m32 -o program32.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
 
-      # 5. 编译 64 位可执行文件
+      # 6. 编译 64 位可执行文件
       - name: Compile 64-bit Executable
         run: |
-          g++ -m64 -o program64.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
+          g++ -I"C:\tools\curl\include" -L"C:\tools\curl\lib" -m64 -o program64.exe main.cpp -lcurl -lws2_32 -liphlpapi -std=c++17
 
-      # 6. 上传编译结果
+      # 7. 上传编译结果
       - name: Upload Executables
         uses: actions/upload-artifact@v3
         with:
