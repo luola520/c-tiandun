@@ -19,15 +19,15 @@ jobs:
     - name: Download and Setup libcurl
       run: |
         # 下载预编译的 libcurl (Windows MSVC 版本)
-        curl -LO https://curl.se/windows/dl-7.92.0/curl-7.92.0-win64-mingw.zip
+        curl -LO https://curl.se/windows/dl-7.92.0/curl-7.92.0-win64-msvc.zip
         mkdir C:\curl
         # 使用 PowerShell 解压
-        powershell -Command "Expand-Archive -Path curl-7.92.0-win64-mingw.zip -DestinationPath C:\curl"
+        powershell -Command "Expand-Archive -Path curl-7.92.0-win64-msvc.zip -DestinationPath C:\curl"
 
     - name: Configure CMake
       run: |
-        cmake -S . -B build -G "Visual Studio 17 2022" ^
-          -DCURL_INCLUDE_DIR=C:/curl/include ^
+        cmake -S . -B build -G "Visual Studio 17 2022" \
+          -DCURL_INCLUDE_DIR=C:/curl/include \
           -DCURL_LIBRARIES=C:/curl/lib/libcurl.lib
 
     - name: Build project
