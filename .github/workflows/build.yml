@@ -25,10 +25,7 @@ jobs:
         powershell -Command "Expand-Archive -Path curl-7.92.0-win64-msvc.zip -DestinationPath C:\curl"
 
     - name: Configure CMake
-      run: |
-        cmake -S . -B build -G "Visual Studio 17 2022" \
-          -DCURL_INCLUDE_DIR=C:/curl/include \
-          -DCURL_LIBRARIES=C:/curl/lib/libcurl.lib
+      run: cmake -S . -B build -G "Visual Studio 17 2022" -DCURL_INCLUDE_DIR=C:/curl/include -DCURL_LIBRARIES=C:/curl/lib/libcurl.lib
 
     - name: Build project
       run: cmake --build build --config Release
