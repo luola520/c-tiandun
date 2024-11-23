@@ -1,27 +1,46 @@
-name: Windows C++ Build
+name: Build and Release
 
 on:
   push:
     branches:
-      - main  # 当推送到 main 分支时触发
+      - main
   pull_request:
     branches:
-      - main  # 当针对 main 分支创建 PR 时触发
+      - main
 
 jobs:
   build:
-    runs-on: windows-latest  # 使用 Windows 构建环境
+    name: Build EXE
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3  # 检出代码库
+      uses: actions/checkout@v3
 
-    - name: Set up MSVC environment and build
-      shell: cmd  # 指定运行 cmd 环境
-      run: |
-        "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" && mkdir build && cl.exe /EHsc /Iinclude /D _WIN32 main.cpp /link /OUT:build\my_program.exe
+    - name: Setup vcpkg
+      uses: microsoft/vcpkg-action@v2
+      with:
+        vcpkgGitCommitId: 2023.06.23 # 固定版本，确保一致性
 
-    - name: Run the compiled program
-      shell: cmd  # 同样使用 cmd 环境运行生成的程序
+    - name: Install Dependencies
+      run: vcpkg install curl:x64-windows
+
+    - name: Install MinGW
+      run: choco install mingw -y
+      shell: cmd
+
+    - name: Add MinGW to Path
+      run: echo "C:\Program Files\mingw-w64\mingw64\bin" >> $env:GITHUB_PATH
+      shell: powershell
+
+    - name: Build Project
       run: |
-        build\my_program.exe
+        g++ -std=c++17 -Iinclude -o software.exe main.cpp -lws2_32 -liphlpapi -lcurl
+        dir
+      shell: cmd
+
+    - name: Archive Build
+      uses: actions/upload-artifact@v3
+      with:
+        name: compiled-exe
+        path: software.exe
