@@ -16,23 +16,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        # 安装 Chocolatey 和必要依赖
-        choco install -y curl       # 安装 curl
-        choco install -y cmake      # 安装 CMake
-        choco install -y mingw      # 安装 MinGW 编译器
-
     - name: Download and Setup libcurl
       run: |
         # 下载预编译的 libcurl (Windows MSVC 版本)
-        curl -LO https://curl.se/windows/dl-7.x.x/curl-7.x.x-win64-msvc.zip
+        curl -LO https://curl.se/windows/dl-7.92.0/curl-7.92.0-win64-mingw.zip
         mkdir C:\curl
-        tar -xf curl-7.x.x-win64-msvc.zip -C C:\curl --strip-components=1
+        # 使用 PowerShell 解压
+        powershell -Command "Expand-Archive -Path curl-7.92.0-win64-mingw.zip -DestinationPath C:\curl"
 
     - name: Configure CMake
       run: |
-        # 配置 CMake 项目，并指定 libcurl 的路径
         cmake -S . -B build -G "Visual Studio 17 2022" ^
           -DCURL_INCLUDE_DIR=C:/curl/include ^
           -DCURL_LIBRARIES=C:/curl/lib/libcurl.lib
@@ -44,4 +37,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: MyApp-windows
-        path: build/Release/MyApp.exe # 上传可执行文件
+        path: build/Release/MyApp.exe
