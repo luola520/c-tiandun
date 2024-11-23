@@ -1,4 +1,4 @@
-name: Build and Test (Windows)
+name: Build and Package (Windows)
 
 on:
   push:
@@ -18,18 +18,30 @@ jobs:
 
     - name: Install dependencies
       run: |
-        choco install -y curl       # 安装 curl 工具
-        choco install -y cmake      # 使用 Chocolatey 安装 CMake
-        choco install -y mingw      # 安装 MinGW 编译器（可选）
+        # 安装 Chocolatey 和必要依赖
+        choco install -y curl       # 安装 curl
+        choco install -y cmake      # 安装 CMake
+        choco install -y mingw      # 安装 MinGW 编译器
 
-    - name: Configure project
+    - name: Download and Setup libcurl
       run: |
-        cmake -S . -B build -G "Visual Studio 17 2022" # 使用 Visual Studio 2022
-        # 如果使用 MinGW，请改为以下命令：
-        # cmake -S . -B build -G "MinGW Makefiles"
+        # 下载预编译的 libcurl (Windows MSVC 版本)
+        curl -LO https://curl.se/windows/dl-7.x.x/curl-7.x.x-win64-msvc.zip
+        mkdir C:\curl
+        tar -xf curl-7.x.x-win64-msvc.zip -C C:\curl --strip-components=1
+
+    - name: Configure CMake
+      run: |
+        # 配置 CMake 项目，并指定 libcurl 的路径
+        cmake -S . -B build -G "Visual Studio 17 2022" ^
+          -DCURL_INCLUDE_DIR=C:/curl/include ^
+          -DCURL_LIBRARIES=C:/curl/lib/libcurl.lib
 
     - name: Build project
-      run: cmake --build build --config Release # Release 模式构建
+      run: cmake --build build --config Release
 
-    - name: Run application
-      run: build/Release/MyApp.exe # 测试生成的 .exe 文件
+    - name: Package output
+      uses: actions/upload-artifact@v3
+      with:
+        name: MyApp-windows
+        path: build/Release/MyApp.exe # 上传可执行文件
