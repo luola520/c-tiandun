@@ -17,13 +17,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Setup vcpkg
-      uses: microsoft/vcpkg-action@v2
-      with:
-        vcpkgGitCommitId: 2023.06.23 # 固定版本，确保一致性
+    - name: Download vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
 
     - name: Install Dependencies
-      run: vcpkg install curl:x64-windows
+      run: .\vcpkg\vcpkg.exe install curl:x64-windows
 
     - name: Install MinGW
       run: choco install mingw -y
@@ -35,7 +35,7 @@ jobs:
 
     - name: Build Project
       run: |
-        g++ -std=c++17 -Iinclude -o software.exe main.cpp -lws2_32 -liphlpapi -lcurl
+        g++ -std=c++17 -Iinclude -o software.exe main.cpp -L.\vcpkg\installed\x64-windows\lib -lws2_32 -liphlpapi -lcurl
         dir
       shell: cmd
 
