@@ -1,37 +1,35 @@
-name: Build and Package (Windows)
+name: C++ Build and Test
 
 on:
   push:
     branches:
-      - main
+      - main  # 当代码推送到 main 分支时触发
   pull_request:
     branches:
-      - main
+      - main  # 当创建针对 main 分支的 PR 时触发
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
+    # 检出代码库
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Download and Setup libcurl
+    # 安装必需的依赖项
+    - name: Install dependencies
       run: |
-        # 下载预编译的 libcurl (Windows MSVC 版本)
-        curl -LO https://curl.se/windows/dl-7.92.0/curl-7.92.0-win64-msvc.zip
-        mkdir C:\curl
-        # 使用 PowerShell 解压
-        powershell -Command "Expand-Archive -Path curl-7.92.0-win64-msvc.zip -DestinationPath C:\curl"
+        sudo apt update
+        sudo apt install -y g++ libcurl4-openssl-dev
 
-    - name: Configure CMake
-      run: cmake -S . -B build -G "Visual Studio 17 2022" -DCURL_INCLUDE_DIR=C:/curl/include -DCURL_LIBRARIES=C:/curl/lib/libcurl.lib
+    # 创建构建目录并编译项目
+    - name: Build the project
+      run: |
+        mkdir -p build
+        g++ -std=c++17 -o build/my_program main.cpp -lcurl -lpthread
 
-    - name: Build project
-      run: cmake --build build --config Release
-
-    - name: Package output
-      uses: actions/upload-artifact@v3
-      with:
-        name: MyApp-windows
-        path: build/Release/MyApp.exe
+    # 运行编译后的程序（可选）
+    - name: Run the compiled program (Optional)
+      run: |
+        ./build/my_program
