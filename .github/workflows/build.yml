@@ -1,16 +1,16 @@
-name: C++ Build and Test
+name: C++ Build on Windows
 
 on:
   push:
     branches:
-      - main  # 当代码推送到 main 分支时触发
+      - main
   pull_request:
     branches:
-      - main  # 当创建针对 main 分支的 PR 时触发
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     # 检出代码库
@@ -20,16 +20,15 @@ jobs:
     # 安装必需的依赖项
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install -y g++ libcurl4-openssl-dev
+        choco install curl
 
-    # 创建构建目录并编译项目
+    # 编译项目
     - name: Build the project
       run: |
-        mkdir -p build
-        g++ -std=c++17 -o build/my_program main.cpp -lcurl -lpthread
+        mkdir build
+        cl.exe /EHsc /Iinclude /D "_WIN32" main.cpp /link /OUT:build\my_program.exe
 
-    # 运行编译后的程序（可选）
-    - name: Run the compiled program (Optional)
+    # 可选：运行编译后的程序
+    - name: Run the compiled program
       run: |
-        ./build/my_program
+        build\my_program.exe
