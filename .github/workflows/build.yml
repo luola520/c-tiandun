@@ -16,25 +16,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up CMake
-      uses: lukka/get-cmake@v3
-
     - name: Install dependencies
       run: |
-        # 安装必要的工具和依赖项
-        choco install -y curl        # 安装 curl 工具（可选）
-        choco install -y mingw       # 如果需要 MinGW 编译器
-        # 确保 cURL 和其他依赖库路径正确
-        echo "Dependencies installed"
+        choco install -y curl       # 安装 curl 工具
+        choco install -y cmake      # 使用 Chocolatey 安装 CMake
+        choco install -y mingw      # 安装 MinGW 编译器（可选）
 
     - name: Configure project
       run: |
-        cmake -S . -B build -G "Visual Studio 17 2022" # 使用 Visual Studio 2022 构建工具
-        # 如果需要 MinGW 编译器，可以替换为以下命令：
+        cmake -S . -B build -G "Visual Studio 17 2022" # 使用 Visual Studio 2022
+        # 如果使用 MinGW，请改为以下命令：
         # cmake -S . -B build -G "MinGW Makefiles"
 
     - name: Build project
-      run: cmake --build build --config Release # 使用 Release 配置
+      run: cmake --build build --config Release # Release 模式构建
 
     - name: Run application
-      run: build/Release/MyApp.exe # 测试可执行文件
+      run: build/Release/MyApp.exe # 测试生成的 .exe 文件
