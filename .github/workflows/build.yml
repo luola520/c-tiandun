@@ -45,6 +45,7 @@ jobs:
     - name: Check Output
       run: |
         if exist software.exe (echo "Build succeeded.") else (echo "Build failed. EXE not found." && exit 1)
+      shell: cmd
 
     - name: Archive Build
       uses: actions/upload-artifact@v3
