@@ -1,4 +1,4 @@
-name: C++ Build on Windows
+name: Windows C++ Build
 
 on:
   push:
@@ -13,22 +13,16 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    # 检出代码库
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 安装必需的依赖项
-    - name: Install dependencies
-      run: |
-        choco install curl
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
 
-    # 编译项目
     - name: Build the project
       run: |
         mkdir build
         cl.exe /EHsc /Iinclude /D "_WIN32" main.cpp /link /OUT:build\my_program.exe
 
-    # 可选：运行编译后的程序
-    - name: Run the compiled program
-      run: |
-        build\my_program.exe
+    - name: Run the compiled program (optional)
+      run: build\my_program.exe
