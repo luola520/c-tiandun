@@ -3,10 +3,10 @@ name: Windows C++ Build
 on:
   push:
     branches:
-      - main  # 监听 main 分支
+      - main  # 当推送到 main 分支时触发
   pull_request:
     branches:
-      - main
+      - main  # 当针对 main 分支创建 PR 时触发
 
 jobs:
   build:
@@ -17,9 +17,11 @@ jobs:
       uses: actions/checkout@v3  # 检出代码库
 
     - name: Set up MSVC environment and build
+      shell: cmd  # 指定运行 cmd 环境
       run: |
-        cmd /c ""C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" && mkdir build && cl.exe /EHsc /Iinclude /D _WIN32 main.cpp /link /OUT:build\my_program.exe"
+        "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" && mkdir build && cl.exe /EHsc /Iinclude /D _WIN32 main.cpp /link /OUT:build\my_program.exe
 
     - name: Run the compiled program
+      shell: cmd  # 同样使用 cmd 环境运行生成的程序
       run: |
         build\my_program.exe
