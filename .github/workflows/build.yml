@@ -33,11 +33,18 @@ jobs:
       run: echo "C:\Program Files\mingw-w64\mingw64\bin" >> $env:GITHUB_PATH
       shell: powershell
 
+    - name: Verify g++
+      run: g++ --version
+
     - name: Build Project
       run: |
-        g++ -std=c++17 -Iinclude -o software.exe main.cpp -L.\vcpkg\installed\x64-windows\lib -lws2_32 -liphlpapi -lcurl
+        g++ -std=c++17 -Iinclude -I.\vcpkg\installed\x64-windows\include -o software.exe main.cpp -L.\vcpkg\installed\x64-windows\lib -lws2_32 -liphlpapi -lcurl
         dir
       shell: cmd
+
+    - name: Check Output
+      run: |
+        if exist software.exe (echo "Build succeeded.") else (echo "Build failed. EXE not found." && exit 1)
 
     - name: Archive Build
       uses: actions/upload-artifact@v3
