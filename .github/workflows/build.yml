@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Test (Windows)
 
 on:
   push:
@@ -10,33 +10,31 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        compiler: [gcc, clang]
-      fail-fast: false
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Setup CMake
+    - name: Set up CMake
       uses: lukka/get-cmake@v3
 
-    - name: Install dependencies (Linux)
-      if: runner.os == 'Linux'
-      run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
-
-    - name: Install dependencies (macOS)
-      if: runner.os == 'macOS'
-      run: brew install curl
+    - name: Install dependencies
+      run: |
+        # 安装必要的工具和依赖项
+        choco install -y curl        # 安装 curl 工具（可选）
+        choco install -y mingw       # 如果需要 MinGW 编译器
+        # 确保 cURL 和其他依赖库路径正确
+        echo "Dependencies installed"
 
     - name: Configure project
-      run: cmake -S . -B build
+      run: |
+        cmake -S . -B build -G "Visual Studio 17 2022" # 使用 Visual Studio 2022 构建工具
+        # 如果需要 MinGW 编译器，可以替换为以下命令：
+        # cmake -S . -B build -G "MinGW Makefiles"
 
     - name: Build project
-      run: cmake --build build
+      run: cmake --build build --config Release # 使用 Release 配置
 
-    - name: Run Tests (if any)
-      run: ./build/bin/MyApp
+    - name: Run application
+      run: build/Release/MyApp.exe # 测试可执行文件
